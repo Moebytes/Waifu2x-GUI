@@ -26,10 +26,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/Moebits/Waifu2x-GUI"
+    "url": "https://github.com/Moebytes/Waifu2x-GUI"
   },
   "build": {
-    "appId": "com.moebits.waifu2x",
+    "appId": "com.moebytes.waifu2x",
     "productName": "Waifu2x GUI",
     "icon": "./assets/icon.png",
     "directories": {
@@ -94,7 +94,7 @@
     "publish": {
       "provider": "github",
       "repo": "Waifu2x-GUI",
-      "owner": "Moebits",
+      "owner": "Moebytes",
       "releaseType": "draft"
     },
     "asar": true,
@@ -103,8 +103,8 @@
       "node_modules/**/*.node"
     ]
   },
-  "author": "Moebits",
-  "license": "MIT",
+  "author": "Moebytes",
+  "license": "CC BY-NC 4.0",
   "devDependencies": {
     "@electron/rebuild": "^3.6.0",
     "@types/react": "^17.0.0",
@@ -135,7 +135,7 @@
     "bootstrap": "^4.6.0",
     "electron-store": "^7.0.1",
     "electron-updater": "^4.3.5",
-    "images-meta": "github:Moebits/images-meta",
+    "images-meta": "github:Moebytes/images-meta",
     "react": "^17.0.1",
     "react-bootstrap": "^1.4.3",
     "react-dom": "^17.0.1",
@@ -146,3 +146,4 @@
     "waifu2x": "^1.4.6"
   }
 }
+
