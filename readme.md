@@ -43,7 +43,7 @@ pip3 install torch torchvision opencv-python Pillow numpy spandrel --compile --f
 
 ### Installation
 
-To install, download the latest installer from the [releases](https://github.com/Moebits/Waifu2x-GUI/releases) tab. Updates can be installed automatically.
+To install, download the latest installer from the [releases](https://github.com/Moebytes/Waifu2x-GUI/releases) tab. Updates can be installed automatically.
 
 Note: If you install it under `C:/Program Files` you might need to run it as administrator.
 
@@ -51,7 +51,7 @@ Note: If you install it under `C:/Program Files` you might need to run it as adm
 
 On MacOS unsigned applications won't open, run this to remove the quarantine flag.
 ```
-xattr -d com.apple.quarantine /Applications/Waifu2x\ GUI.app
+xattr -d com.apple.quarantine "/Applications/Waifu2x GUI.app"
 ```
 
 ### Bugs and Requests
@@ -60,7 +60,8 @@ Open an issue on my GitHub repository. I appreciate any requests, but I can't gu
 
 ### Related/Credits
 
-- [my waifu2x npm module](https://github.com/Moebits/waifu2x)
+- [my waifu2x npm module](https://github.com/Moebytes/waifu2x)
 - [waifu2x](https://github.com/nagadomi/waifu2x)
 - [real-esrgan](https://github.com/xinntao/Real-ESRGAN)
 - [real-cugan](https://github.com/bilibili/ailab)
+
