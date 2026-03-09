@@ -78,8 +78,8 @@
       "publisher": "CN=4C1B763B-CF01-4978-8749-986F562173D8, OID.2.25.311729368913984317654407730594956997722=1",
       "publisherDisplayName": "Moebytes",
       "capabilities": [
-          "runFullTrust", 
-          "downloadsFolder"
+          "runFullTrust",
+          "downloadsLibrary"
       ]
     },
     "linux": {
