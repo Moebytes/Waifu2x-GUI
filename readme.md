@@ -45,16 +45,6 @@ Our design is available here: https://www.figma.com/design/KXFlnNiiqjK18WgVIqxaV
 
 Download from [releases](https://github.com/Moebytes/Waifu2x-Upscaler/releases).
 
-### MacOS
+### Also See
 
-On MacOS unsigned applications won't open, run this to remove the quarantine flag.
-```
-xattr -d com.apple.quarantine "/Applications/Waifu2x Upscaler.app"
-```
-
-### Related/Credits
-
-- [my waifu2x module](https://github.com/Moebytes/waifu2x)
-- [waifu2x](https://github.com/nagadomi/waifu2x)
-- [real-esrgan](https://github.com/xinntao/Real-ESRGAN)
-- [real-cugan](https://github.com/bilibili/ailab)
+- [Pixel Compressor](https://github.com/Moebytes/Pixel-Compressor)
