@@ -90,7 +90,7 @@ const TitleBar: React.FunctionComponent = () => {
                 </div>
                 <div className="title-button-container">
                     <SettingsIcon className="title-bar-button" onClick={settings}/>
-                    <QuickIcon className="title-bar-button" onClick={quick}/>
+                    {/* <QuickIcon className="title-bar-button" onClick={quick}/> */}
                     <TransparentIcon className="title-bar-button" onClick={switchTransparency}/>
                     <PinIcon className={`title-bar-button ${pinned && "title-button-active"}`} onClick={switchPinned}/>
                     {theme === "light" ?
@@ -112,7 +112,7 @@ const TitleBar: React.FunctionComponent = () => {
                 </div>
                 <div className="title-button-container">
                     <SettingsIcon className="title-bar-button" onClick={settings}/>
-                    <QuickIcon className="title-bar-button" onClick={quick}/>
+                    {/* <QuickIcon className="title-bar-button" onClick={quick}/> */}
                     <TransparentIcon className="title-bar-button" onClick={switchTransparency}/>
                     <PinIcon className={`title-bar-button ${pinned && "title-button-active"}`} onClick={switchPinned}/>
                     {theme === "light" ?

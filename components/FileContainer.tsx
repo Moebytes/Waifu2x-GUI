@@ -285,17 +285,6 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
         } else {
             return
         }
-        const {target, nativeEvent} = event
-        const cloned =  new MouseEvent("mousedown", nativeEvent)
-        if (!realEvent || !mouseStopped) {
-            realEvent = true
-            return
-        }
-        event.stopPropagation()
-        setTimeout(() => {
-            realEvent = false
-            target.dispatchEvent(cloned)
-        }, 200)
     }
 
     const openLocation = async (direct?: boolean) => {
@@ -347,18 +336,21 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
     }
 
     return (
-        <section ref={fileContainerRef} className="file-wrap-container" onMouseOver={() => setHover(true)} onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>
-            <div className="file-container" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} onMouseDown={() => setDrag(false)} onMouseMove={() => setDrag(true)}>
+        <section ref={fileContainerRef} className="file-wrap-container" onMouseOver={() => setHover(true)} 
+            onMouseEnter={mouseEnter} onMouseLeave={mouseLeave}>
+            <div className="file-container" onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)} 
+                onMouseDown={() => setDrag(false)} onMouseMove={() => setDrag(true)}>
             <div className="file-img-container">
                 {getThumbnail()}
             </div>
             <div className="file-middle">
                 <div className="file-group-top">
                     <div className="file-name">
-                        <p className="file-text bigger"><span className="hover" onClick={() => openLocation(true)}>{functions.cleanTitle(functions.basename(props.source))}</span></p>
+                        <p className="file-text bigger"><span className="hover" onMouseDown={(event: any) => event.stopPropagation()} 
+                            onClick={() => openLocation(true)}>{functions.cleanTitle(functions.basename(props.source))}</span></p>
                         {showNew ? 
-                        <ContractIcon className="file-expand" onClick={toggleNew}/> :
-                        <ExpandIcon className="file-expand" onClick={toggleNew}/>}
+                        <ContractIcon className="file-expand" onMouseDown={(event: any) => event.stopPropagation()} onClick={toggleNew}/> :
+                        <ExpandIcon className="file-expand" onMouseDown={(event: any) => event.stopPropagation()} onClick={toggleNew}/>}
                     </div>
                     <div className="file-info">
                             <p className="file-text" onMouseDown={(event) => event.stopPropagation()}>{calcWidth()}x{calcHeight()}</p>
@@ -366,17 +358,21 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
                             <p className="file-text" onMouseDown={(event) => event.stopPropagation()}>{calcWidth(true)}x{calcHeight(true)}</p>
                     </div>
                     <div className="file-info">
-                            <p className="file-text" onMouseDown={(event) => event.stopPropagation()}>Noise: {started ? lockedStats.noise : noise}</p>
-                            <p className="file-text margin-left" onMouseDown={(event) => event.stopPropagation()}>Scale: {started ? lockedStats.scale : scale}</p>
-                            {/*<p className="file-text margin-left" onMouseDown={(event) => event.stopPropagation()}>Mode: {started ? lockedStats.mode : mode}</p>*/}
+                            <p className="file-text" onMouseDown={(event) => event.stopPropagation()}>
+                                Noise: {started ? lockedStats.noise : noise}</p>
+                            <p className="file-text margin-left" onMouseDown={(event) => event.stopPropagation()}>
+                                Scale: {started ? lockedStats.scale : scale}</p>
                     </div>
                     {props.type !== "image" ?
                     <div className="file-info-col-container">
                         <div className="file-info-col">
                             <div className="file-info">
-                                {props.framerate ? <p className="file-text" onMouseDown={(event) => event.stopPropagation()}>Framerate: {started ? lockedStats.framerate : props.framerate * fpsMultiplier}</p> : null}
-                                <p className="file-text margin-left" onMouseDown={(event) => event.stopPropagation()}>Speed: {started ? lockedStats.speed : speed}</p>
-                                <p className="file-text margin-left" onMouseDown={(event) => event.stopPropagation()}>Reverse: {started ? (lockedStats.reverse ? "yes" : "no") : (reverse ? "yes" : "no")}</p>
+                                {props.framerate ? <p className="file-text" onMouseDown={(event) => event.stopPropagation()}>
+                                    Framerate: {started ? lockedStats.framerate : props.framerate * fpsMultiplier}</p> : null}
+                                <p className="file-text margin-left" onMouseDown={(event) => event.stopPropagation()}>
+                                    Speed: {started ? lockedStats.speed : speed}</p>
+                                <p className="file-text margin-left" onMouseDown={(event) => event.stopPropagation()}>
+                                    Reverse: {started ? (lockedStats.reverse ? "yes" : "no") : (reverse ? "yes" : "no")}</p>
                             </div>
                         </div>
                         <div className="file-info-col">
@@ -389,15 +385,19 @@ const FileContainer: React.FunctionComponent<FileContainerProps> = (props: FileC
                 </div>
             </div>
             <div className="file-buttons">
-                {hover ? <CloseContainerIcon className="file-button close-container" onClick={closeConversion}/> : null}
+                {hover ? <CloseContainerIcon className="file-button close-container" onMouseDown={(event: any) => event.stopPropagation()}
+                     onClick={closeConversion}/> : null}
                 <div className="file-button-row">
-                    <button className="start-button" onClick={() => {started ? stopConversion() : startConversion()}}>
+                    <button className="start-button" onClick={() => {started ? stopConversion() : startConversion()}}
+                        onMouseDown={(event: any) => event.stopPropagation()}>
                         {started ? "Stop" : "Start"}
                     </button>
                 </div>
                 <div className="file-button-row">
-                    {output ? <LocationIcon className="file-button" onClick={() => openLocation()} style={{color: "var(--locationButton)"}}/> : null}
-                    {output ? <TrashIcon className="file-button" onClick={() => deleteConversion()} style={{color: "var(--trashButton)"}}/> : null}
+                    {output ? <LocationIcon className="file-button" onMouseDown={(event: any) => event.stopPropagation()} 
+                        onClick={() => openLocation()} style={{color: "var(--locationButton)"}}/> : null}
+                    {output ? <TrashIcon className="file-button" onMouseDown={(event: any) => event.stopPropagation()} 
+                        onClick={() => deleteConversion()} style={{color: "var(--trashButton)"}}/> : null}
                 </div>
             </div>
             </div>

@@ -16,6 +16,7 @@ import waifu2x from "waifu2x"
 import imagesMeta from "images-meta"
 import functions from "./structures/functions"
 import mainFunctions from "./structures/mainFunctions"
+import pack from "./package.json"
 
 process.setMaxListeners(0)
 let window: Electron.BrowserWindow | null
@@ -40,13 +41,13 @@ let scriptsPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules
 
 if (!fs.existsSync(ffmpegPath)) ffmpegPath = undefined
 if (!fs.existsSync(modelPath)) modelPath = path.join(__dirname, "../../models")
-if (!fs.existsSync(waifu2xPath)) waifu2xPath = path.join(__dirname, "../../waifu2x")
-if (!fs.existsSync(esrganPath)) esrganPath = path.join(__dirname, "../../real-esrgan")
-if (!fs.existsSync(cuganPath)) cuganPath = path.join(__dirname, "../../real-cugan")
-if (!fs.existsSync(anime4kPath)) anime4kPath = path.join(__dirname, "../../anime4k")
-if (!fs.existsSync(webpPath)) webpPath = path.join(__dirname, "../../webp")
-if (!fs.existsSync(scriptsPath)) scriptsPath = path.join(__dirname, "../../scripts")
-if (!fs.existsSync(rifePath)) rifePath = path.join(__dirname, "../../rife")
+if (!fs.existsSync(waifu2xPath)) waifu2xPath = path.join(__dirname, "../../node_modules/waifu2x/waifu2x")
+if (!fs.existsSync(esrganPath)) esrganPath = path.join(__dirname, "../../node_modules/waifu2x/real-esrgan")
+if (!fs.existsSync(cuganPath)) cuganPath = path.join(__dirname, "../../node_modules/waifu2x/real-cugan")
+if (!fs.existsSync(anime4kPath)) anime4kPath = path.join(__dirname, "../../node_modules/waifu2x/anime4k")
+if (!fs.existsSync(webpPath)) webpPath = path.join(__dirname, "../../node_modules/waifu2x/webp")
+if (!fs.existsSync(scriptsPath)) scriptsPath = path.join(__dirname, "../../node_modules/waifu2x/scripts")
+if (!fs.existsSync(rifePath)) rifePath = path.join(__dirname, "../../node_modules/rife-fps/rife")
 
 const store = new Store()
 let initialTransparent = process.platform === "win32" ? store.get("transparent", false) as boolean : true
@@ -179,7 +180,7 @@ const quickProcess = async (image: string) => {
         return newFilePath
     }
 
-    const upscaleImage = async (src: string, dest: string, options?: any) => {
+    const upscaleImage = async (src: string, dest: string) => {
         let target = src
         let isWebp = path.extname(src) === ".webp"
         let isAvif = path.extname(src) === ".avif"
@@ -189,7 +190,14 @@ const quickProcess = async (image: string) => {
             target = await convertImage(dest, "png")
         }
 
-        let result = await waifu2x.upscaleImage(target, dest, options ?? {rename: "", upscaler: "real-cugan", scale: 4})
+        let options = {
+          rename: "", upscaler: "real-cugan", scale: 4,
+          ffmpegPath, waifu2xPath, esrganPath,
+          cuganPath, anime4kPath, scriptsPath,
+          rifePath, webpPath
+        }
+
+        let result = await waifu2x.upscaleImage(target, dest, options)
         if (isWebp) {
             await convertImage(result, "webp")
         } else if (isAvif) {
@@ -202,6 +210,9 @@ const quickProcess = async (image: string) => {
 
     const compressedPath = path.join(path.dirname(image), `${path.basename(image, path.extname(image))}_1x${path.extname(image)}`)
     const upscaledPath = path.join(path.dirname(image), `${path.basename(image, path.extname(image))}_2x${path.extname(image)}`)
+
+    await ensureWritable(compressedPath)
+    await ensureWritable(upscaledPath)
 
     fs.copyFileSync(image, compressedPath)
     await resizeImage(compressedPath)
@@ -381,6 +392,46 @@ const nextQueue = async (info: any) => {
   }
 }
 
+const ensureWritable = async (dest: string) => {
+  try {
+    fs.writeFileSync(dest, "")
+    fs.unlinkSync(dest)
+    return dest
+  } catch {
+     if (!window) throw new Error("error")
+      const save = await dialog.showSaveDialog(window, {
+        title: "Select Output",
+        defaultPath: dest,
+        properties: ["createDirectory"]
+      })
+
+      if (save.canceled || !save.filePath) {
+        throw new Error("cancelled")
+      }
+
+      return save.filePath.replace(/\\/g, "/")
+  }
+}
+
+const ensureWritableQuitEarly = async (source: string, dest: string) => {
+  try {
+    fs.writeFileSync(dest, "")
+    fs.unlinkSync(dest)
+    return dest
+  } catch {
+    if (window) {
+      await dialog.showMessageBox(window, {
+        type: "error",
+        title: "Non-writable location",
+        message: `The output location for ${path.basename(source)} is not writable. 
+          You might have to set an explicit folder or move it into downloads.`,
+        buttons: ["OK"]
+      })
+    }
+    throw new Error("failed")
+  }
+}
+
 const upscale = async (info: any) => {
   let qIndex = queue.findIndex((q) => q.info.id === info.id)
   if (qIndex !== -1) queue[qIndex].started = true
@@ -427,6 +478,7 @@ const upscale = async (info: any) => {
   const duplicate = active.find((a) => a.dest === dest)
   if (!overwrite && (fs.existsSync(dest) || duplicate)) dest = mainFunctions.newDest(dest, active)
   dest = dest.replace(/\\/g, "/")
+
   const action = (percent?: number) => {
     const index = active.findIndex((e) => e.id === info.id)
     if (index !== -1) {
@@ -467,6 +519,12 @@ const upscale = async (info: any) => {
   let outputImage = ""
   try {
     if (info.type === "image") {
+      try {
+        dest = await ensureWritable(dest)
+      } catch {
+        window?.webContents.send("conversion-finished", {id: info.id, output: "", outputImage: ""})
+        return nextQueue(info)
+      }
       let meta = []
       try {
         const buffer = fs.readFileSync(info.source)
@@ -486,6 +544,12 @@ const upscale = async (info: any) => {
         if (path.extname(info.source) === ".jxl") jxl = true
         const buffer = await sharp(fs.readFileSync(info.source), {limitInputPixels: false}).png().toBuffer()
         const newDest = dest.replace(path.extname(dest), ".png")
+        try {
+          await ensureWritable(newDest)
+        } catch {
+          window?.webContents.send("conversion-finished", {id: info.id, output: "", outputImage: ""})
+          return nextQueue(info)
+        }
         fs.writeFileSync(newDest, buffer)
         info.source = newDest
         dest = newDest
@@ -502,7 +566,8 @@ const upscale = async (info: any) => {
       }
       if (info.compress) {
         const inputBuffer = fs.readFileSync(output)
-        const outputBuffer = await sharp(inputBuffer, {limitInputPixels: false}).jpeg({optimiseScans: true, trellisQuantisation: true, quality: options.jpgWebpQuality}).toBuffer()
+        const outputBuffer = await sharp(inputBuffer, {limitInputPixels: false}).jpeg({optimiseScans: true, 
+          trellisQuantisation: true, quality: options.jpgWebpQuality}).toBuffer()
         fs.writeFileSync(output, outputBuffer)
         const renamePath = path.join(path.dirname(output), `${path.basename(output, path.extname(output))}.jpg`)
         fs.renameSync(output, renamePath)
@@ -515,14 +580,44 @@ const upscale = async (info: any) => {
         fs.writeFileSync(output, metaBuffer)
       }
     } else if (info.type === "gif") {
+      try {
+        await ensureWritableQuitEarly(info.source, dest)
+      } catch {
+        window?.webContents.send("conversion-finished", {id: info.id, output: "", outputImage: ""})
+        return nextQueue(info)
+      }
       output = await waifu2x.upscaleGIF(info.source, dest, options, progress)
     } else if (info.type === "animated webp") {
+      try {
+        await ensureWritableQuitEarly(info.source, dest)
+      } catch {
+        window?.webContents.send("conversion-finished", {id: info.id, output: "", outputImage: ""})
+        return nextQueue(info)
+      }
       output = await waifu2x.upscaleAnimatedWebp(info.source, dest, options, progress)
     } else if (info.type === "animated png") {
+      try {
+        await ensureWritableQuitEarly(info.source, dest)
+      } catch {
+        window?.webContents.send("conversion-finished", {id: info.id, output: "", outputImage: ""})
+        return nextQueue(info)
+      }
       output = await waifu2x.upscaleAPNG(info.source, dest, options, progress)
     } else if (info.type === "video") {
+      try {
+        await ensureWritableQuitEarly(info.source, dest)
+      } catch {
+        window?.webContents.send("conversion-finished", {id: info.id, output: "", outputImage: ""})
+        return nextQueue(info)
+      }
       output = await waifu2x.upscaleVideo(info.source, dest, options, progress, interlopProgress)
     } else if (info.type === "pdf") {
+      try {
+        await ensureWritableQuitEarly(info.source, dest)
+      } catch {
+        window?.webContents.send("conversion-finished", {id: info.id, output: "", outputImage: ""})
+        return nextQueue(info)
+      }
       output = await waifu2x.upscalePDF(info.source, dest, options, progress)
       const dimensions = await waifu2x.pdfDimensions(output, {downscaleHeight: undefined})
       outputImage = dimensions.image
@@ -632,6 +727,8 @@ ipcMain.handle("select-files", async () => {
 
 ipcMain.handle("get-downloads-folder", async (event, force: boolean) => {
   if (store.has("downloads") && !force) {
+    const bookmark = store.get("downloads-bookmark", "") as string
+    if (bookmark) app.startAccessingSecurityScopedResource(bookmark)
     return store.get("downloads")
   } else {
     const downloads = app.getPath("downloads")
@@ -644,9 +741,12 @@ ipcMain.handle("select-directory", async (event, dir: string) => {
   if (!window) return
   if (dir === undefined) {
     const result = await dialog.showOpenDialog(window, {
-      properties: ["openDirectory"]
+      properties: ["openDirectory", "createDirectory"],
+      securityScopedBookmarks: true
     })
     dir = result.filePaths[0]
+    const bookmark = result.bookmarks?.[0]
+    if (bookmark) store.set("downloads-bookmark", bookmark)
   }
   if (dir) {
     store.set("downloads", dir)
@@ -722,7 +822,10 @@ const applicationMenu = () =>  {
       submenu: [
         {role: "reload"},
         {role: "forceReload"},
-        {role: "toggleDevTools"}
+        {role: "toggleDevTools"},
+        {type: "separator"},
+        {label: "Online Support", click: () => shell.openExternal(pack.repository)},
+        {label: "Privacy Policy", click: () => shell.openExternal(pack.privacyPolicy)}
       ]
     }
   ]
@@ -749,9 +852,6 @@ if (!singleLock) {
     window.removeMenu()
     window.setOpacity(windowOpacity / 100)
     applicationMenu()
-    if (process.platform !== "win32") {
-      if (ffmpegPath) fs.chmodSync(ffmpegPath, "777")
-    }
     localShortcut.register(window, "Control+Shift+I", () => {
       window?.webContents.openDevTools()
     })

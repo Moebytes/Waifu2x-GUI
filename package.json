@@ -1,11 +1,12 @@
 {
   "name": "waifu2x-upscaler",
   "version": "1.0.0",
+  "author": "Moebytes",
   "description": "A cute image upscaler!",
   "main": "dist/main/index.js",
   "scripts": {
     "start": "npm run clean && rsbuild build && npm run copy && electron dist/main/index.js",
-    "build": "npm run clean ./build && rsbuild build && npm run copy &&cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder -p never",
+    "build": "npm run clean ./build && rsbuild build && npm run copy && electron-builder -p never",
     "rebuild": "electron-rebuild -f -w @napi-rs/canvas",
     "copy": "cp structures/pdf.worker.js dist/main/pdf.worker.js",
     "prune": "node prune.ts",
@@ -16,12 +17,11 @@
     "upscaler",
     "anime"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Moebytes/Waifu2x-Upscaler"
-  },
+  "repository": "https://github.com/Moebytes/Waifu2x-Upscaler",
+  "privacyPolicy": "https://moebytes.com/privacy-policy",
+  "license": "CC BY-NC 4.0",
   "build": {
-    "appId": "com.moebytes.waifu2x",
+    "appId": "com.moebytes.waifu2x-upscaler",
     "productName": "Waifu2x Upscaler",
     "icon": "./assets/icon.png",
     "directories": {
@@ -31,14 +31,20 @@
     "buildDependenciesFromSource": true,
     "mac": {
       "target": {
-        "target": "dmg",
+        "target": "mas",
         "arch": "arm64"
       },
+      "type": "distribution",
+      "provisioningProfile": "assets/mas/MacAppStore.provisionprofile",
       "category": "public.app-category.utilities",
       "extraFiles": [
         "ffmpeg/ffmpeg.app",
         "models"
       ]
+    },
+    "mas": {
+      "entitlements": "assets/mas/entitlements.mas.plist",
+      "entitlementsInherit": "assets/mas/entitlements.mas.inherit.plist"
     },
     "dmg": {
       "title": "${productName}",
@@ -73,7 +79,7 @@
       "publisherDisplayName": "Moebytes",
       "capabilities": [
           "runFullTrust", 
-          "broadFileSystemAccess"
+          "downloadsFolder"
       ]
     },
     "linux": {
@@ -92,21 +98,13 @@
       "**/*.dll",
       "package.json"
     ],
-    "publish": {
-      "provider": "github",
-      "repo": "Waifu2x-Upscaler",
-      "owner": "Moebytes",
-      "releaseType": "draft"
-    },
     "asar": true,
     "asarUnpack": [
+      "**/*.node",
       "node_modules/waifu2x",
-      "node_modules/rife-fps",
-      "node_modules/**/*.node"
+      "node_modules/rife-fps"
     ]
   },
-  "author": "Moebytes",
-  "license": "CC BY-NC 4.0",
   "devDependencies": {
     "@electron-rsbuild/plugin-main": "^0.0.12",
     "@electron-rsbuild/plugin-preload": "^0.0.12",

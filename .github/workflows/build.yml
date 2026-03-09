@@ -45,6 +45,43 @@ jobs:
           node-version: "23"
           cache: "npm"
 
+      - name: macOS code signing
+        if: runner.os == 'macOS'
+        run: |
+          echo "${{secrets.MAS_PROVISIONING_PROFILE}}" | base64 --decode > assets/mas/MacAppStore.provisionprofile
+          echo "${{secrets.CSC_KEY}}" | base64 --decode > ~/app_cert.p12
+          echo "${{secrets.CSC_INSTALLER_KEY}}" | base64 --decode > ~/installer_cert.p12
+
+          security create-keychain -p actions build.keychain
+          security set-keychain-settings -lut 21600 build.keychain
+          security unlock-keychain -p actions build.keychain
+          security default-keychain -s build.keychain
+
+          security import ~/app_cert.p12 \
+            -k build.keychain -f pkcs12 \
+            -P "${{secrets.CSC_KEY_PASSWORD}}" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security \
+            -T /usr/bin/pkgbuild \
+            -T /usr/bin/productbuild \
+            -T /usr/bin/productsign
+
+          security import ~/installer_cert.p12 \
+            -k build.keychain -f pkcs12 \
+            -P "${{secrets.CSC_KEY_PASSWORD}}" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/security \
+            -T /usr/bin/pkgbuild \
+            -T /usr/bin/productbuild \
+            -T /usr/bin/productsign
+
+          security set-key-partition-list \
+            -S apple-tool:,apple: \
+            -k actions build.keychain
+
+          security list-keychains -d user -s build.keychain login.keychain
+          security find-identity -v -p codesigning build.keychain
+
       - name: Install dependencies
         run: npm install
 
@@ -67,6 +104,20 @@ jobs:
               mv "$f" "$nf"
             fi
           done
+          
+      - name: Replace spaces (MAS pkg)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          if [ -d "build/mas-arm64" ]; then
+            cd build/mas-arm64
+            for f in *; do
+              nf=$(echo "$f" | tr ' ' '-')
+              if [ "$f" != "$nf" ]; then
+                mv "$f" "$nf"
+              fi
+            done
+          fi
 
       - name: Upload macOS
         if: runner.os == 'macOS'
@@ -74,9 +125,8 @@ jobs:
         with:
           name: ${{env.ARTIFACT_PREFIX}}-mac
           path: |
+            build/mas-arm64/${{env.APP_NAME}}-*.pkg
             build/${{env.APP_NAME}}-*.dmg
-            build/${{env.APP_NAME}}-*.dmg.blockmap
-            build/latest-mac.yml
 
       - name: Upload Windows
         if: runner.os == 'Windows'
@@ -86,8 +136,6 @@ jobs:
           path: |
             build/${{env.APP_NAME}}-*.appx
             build/${{env.APP_NAME}}-*.exe
-            build/${{env.APP_NAME}}-*.exe.blockmap
-            build/latest.yml
 
       - name: Upload Linux
         if: runner.os == 'Linux'
@@ -96,5 +144,3 @@ jobs:
           name: ${{env.ARTIFACT_PREFIX}}-linux
           path: |
             build/${{env.APP_NAME}}-*.AppImage
-            build/${{env.APP_NAME}}-*.AppImage.blockmap
-            build/latest-linux.yml
