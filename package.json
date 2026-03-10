@@ -78,7 +78,7 @@
       "publisher": "CN=4C1B763B-CF01-4978-8749-986F562173D8, OID.2.25.311729368913984317654407730594956997722=1",
       "publisherDisplayName": "Moebytes",
       "capabilities": [
-          "runFullTrust"
+        "runFullTrust"
       ]
     },
     "linux": {
@@ -138,6 +138,6 @@
     "react-sortablejs": "^6.1.4",
     "shade-blend-color": "^1.0.0",
     "sharp": "^0.34.5",
-    "waifu2x": "^1.5.7"
+    "waifu2x": "^1.5.8"
   }
 }
