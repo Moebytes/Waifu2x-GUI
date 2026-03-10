@@ -39,6 +39,36 @@ let webpPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/wa
 let rifePath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/rife-fps/rife")
 let scriptsPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/scripts")
 
+const modelCacheLocation = path.join(app.getPath("userData"), "assets")
+
+if (process.platform === "win32" && app.isPackaged) {
+  // On Windows write the files to a location we have permission to access
+  let oldFFmpeg = ffmpegPath
+  let oldModels = modelPath
+  let oldWaifu2x = waifu2xPath
+  let oldESRGAN = esrganPath
+  let oldCUGAN = cuganPath
+  let oldAnime4K = anime4kPath
+  let oldWebp = webpPath
+  let oldRife = rifePath
+  ffmpegPath = path.join(modelCacheLocation, "ffmpeg/ffmpeg.exe")
+  modelPath = path.join(modelCacheLocation, "models")
+  waifu2xPath = path.join(modelCacheLocation, "waifu2x")
+  esrganPath = path.join(modelCacheLocation, "real-esrgan")
+  cuganPath = path.join(modelCacheLocation, "real-cugan")
+  anime4kPath = path.join(modelCacheLocation, "anime4k")
+  webpPath = path.join(modelCacheLocation, "webp")
+  rifePath = path.join(modelCacheLocation, "rife")
+  if (!fs.existsSync(ffmpegPath)) mainFunctions.copyRecursive(path.dirname(oldFFmpeg), path.dirname(ffmpegPath))
+  if (!fs.existsSync(modelPath)) mainFunctions.copyRecursive(oldModels, modelPath)
+  if (!fs.existsSync(waifu2xPath)) mainFunctions.copyRecursive(oldWaifu2x, waifu2xPath)
+  if (!fs.existsSync(esrganPath)) mainFunctions.copyRecursive(oldESRGAN, esrganPath)
+  if (!fs.existsSync(cuganPath)) mainFunctions.copyRecursive(oldCUGAN, cuganPath)
+  if (!fs.existsSync(anime4kPath)) mainFunctions.copyRecursive(oldAnime4K, anime4kPath)
+  if (!fs.existsSync(webpPath)) mainFunctions.copyRecursive(oldWebp, webpPath)
+  if (!fs.existsSync(rifePath)) mainFunctions.copyRecursive(oldRife, rifePath)
+}
+
 if (!fs.existsSync(ffmpegPath)) ffmpegPath = undefined
 if (!fs.existsSync(modelPath)) modelPath = path.join(__dirname, "../../models")
 if (!fs.existsSync(waifu2xPath)) waifu2xPath = path.join(__dirname, "../../node_modules/waifu2x/waifu2x")
@@ -781,6 +811,14 @@ ipcMain.handle("context-menu", (event, {hasSelection}) => {
     {type: "separator"},
     {label: `Opacity (${windowOpacity}%)`, submenu: opacitySubmenu()}
   ]
+
+  if (process.platform === "win32") {
+    template.push(
+      {label: "Open Model Cache",
+        click: () => shell.openPath(modelCacheLocation)
+      }
+    )
+  }
 
   const menu = Menu.buildFromTemplate(template)
   const window = BrowserWindow.fromWebContents(event.sender)

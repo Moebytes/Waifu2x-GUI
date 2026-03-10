@@ -67,6 +67,21 @@ export default class MainFunctions {
     public static escape = (str: string) => {
         return path.normalize(str).replace(/(?<!\\)\\(?!\\)/g, "/")
     }
+    
+    public static copyRecursive = (src: string, dest: string) => {
+        if (!fs.existsSync(dest)) fs.mkdirSync(dest, {recursive: true})
+
+        for (const file of fs.readdirSync(src)) {
+            const srcFile = path.join(src, file)
+            const destFile = path.join(dest, file)
+
+            if (fs.statSync(srcFile).isDirectory()) {
+                MainFunctions.copyRecursive(srcFile, destFile)
+            } else {
+                fs.copyFileSync(srcFile, destFile)
+            }
+        }
+    }
 
     public static removeDirectory = (dir: string) => {
         if (dir === "/" || dir === "./") return
