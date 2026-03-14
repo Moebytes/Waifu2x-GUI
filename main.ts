@@ -454,7 +454,7 @@ const ensureWritableQuitEarly = async (source: string, dest: string) => {
         type: "error",
         title: "Non-writable location",
         message: `The output location for ${path.basename(source)} is not writable. 
-          You might have to set an explicit folder or move it into downloads.`,
+          You need to open it explicitly using the folder icon.`,
         buttons: ["OK"]
       })
     }
