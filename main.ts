@@ -9,6 +9,7 @@ import localShortcut from "electron-localshortcut"
 import Store from "electron-store"
 import dragAddon from "electron-click-drag-plugin"
 import fs from "fs"
+import os from "os"
 import path from "path"
 import sharp from "sharp"
 import process from "process"
@@ -462,12 +463,40 @@ const ensureWritableQuitEarly = async (source: string, dest: string) => {
   }
 }
 
+const truncateScale = (upscaler: string, scale: number, noise: number) => {
+  if (upscaler === "waifu2x") {
+    if (scale <= 1) scale = 1
+    else if (scale <= 2) scale = 2
+    else scale = 4
+
+    noise = Math.max(-1, Math.min(3, noise))
+  }
+
+  if (upscaler === "real-esrgan") {
+    scale = Math.max(2, Math.min(4, scale))
+  }
+
+  if (upscaler === "real-cugan") {
+    scale = Math.round(scale)
+    scale = Math.max(1, Math.min(4, scale))
+
+    noise = Math.max(-1, Math.min(3, noise))
+
+    if (scale >= 3 && ![0, 3].includes(noise)) {
+      noise = 0
+    }
+  }
+
+  return {scale, noise}
+}
+
 const upscale = async (info: any) => {
   let qIndex = queue.findIndex((q) => q.info.id === info.id)
   if (qIndex !== -1) queue[qIndex].started = true
+  const {scale, noise} = truncateScale(info.upscaler, Number(info.scale), Number(info.noise))
   const options = {
-    noise: Number(info.noise) as any,
-    scale: Number(info.scale),
+    scale,
+    noise: noise as any,
     mode: info.mode,
     fpsMultiplier: Number(info.fpsMultiplier),
     quality: Number(info.quality),
@@ -761,7 +790,8 @@ ipcMain.handle("get-downloads-folder", async (event, force: boolean) => {
     if (bookmark) app.startAccessingSecurityScopedResource(bookmark)
     return store.get("downloads")
   } else {
-    const downloads = app.getPath("downloads")
+    const downloads = process.platform === "darwin" ? `/Users/${os.userInfo().username}/Downloads`
+      : app.getPath("downloads")
     store.set("downloads", downloads)
     return downloads
   }
