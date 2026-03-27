@@ -1,6 +1,6 @@
 {
   "name": "waifu2x-upscaler",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Moebytes",
   "description": "A cute image upscaler!",
   "main": "dist/main/index.js",
@@ -28,6 +28,7 @@
       "output": "build"
     },
     "buildDependenciesFromSource": true,
+    "electronLanguages": ["en"],
     "mac": {
       "icon": "assets/mas/icon.icns",
       "target": {
