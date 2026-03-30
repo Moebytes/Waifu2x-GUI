@@ -39,15 +39,19 @@
       "provisioningProfile": "assets/mas/MacAppStore.provisionprofile",
       "category": "public.app-category.utilities",
       "extraResources": [
-        "ffmpeg/ffmpeg.app"
+        {"from": "ffmpeg/ffmpeg.app", "to": "ffmpeg/ffmpeg"}
       ],
       "extraFiles": [
         "models"
       ]
     },
     "mas": {
+      "hardenedRuntime": false,
       "entitlements": "assets/mas/entitlements.mas.plist",
-      "entitlementsInherit": "assets/mas/entitlements.mas.inherit.plist"
+      "entitlementsInherit": "assets/mas/entitlements.mas.inherit.plist",
+      "binaries": [
+        "Contents/Resources/ffmpeg/ffmpeg"
+      ]
     },
     "dmg": {
       "title": "${productName}",
