@@ -1,6 +1,6 @@
 {
   "name": "waifu2x-upscaler",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "author": "Moebytes",
   "description": "A cute image upscaler!",
   "main": "dist/main/index.js",
@@ -29,6 +29,7 @@
     },
     "buildDependenciesFromSource": true,
     "electronLanguages": ["en"],
+    "afterPack": "./afterpack.js",
     "mac": {
       "icon": "assets/mas/icon.icns",
       "target": {
@@ -38,10 +39,8 @@
       "type": "distribution",
       "provisioningProfile": "assets/mas/MacAppStore.provisionprofile",
       "category": "public.app-category.utilities",
-      "extraResources": [
-        {"from": "ffmpeg/ffmpeg.app", "to": "ffmpeg/ffmpeg"}
-      ],
       "extraFiles": [
+        "ffmpeg/ffmpeg.app",
         "models"
       ]
     },
@@ -67,10 +66,8 @@
         "target": "appx",
         "arch": "x64"
       },
-      "extraResources": [
-        "ffmpeg/ffmpeg.exe"
-      ],
       "extraFiles": [
+        "ffmpeg/ffmpeg.exe",
         "models"
       ]
     },
@@ -98,10 +95,8 @@
         "arch": "x64"
       },
       "category": "Utility",
-      "extraResources": [
-        "ffmpeg/ffmpeg"
-      ],
       "extraFiles": [
+        "ffmpeg/ffmpeg",
         "models"
       ]
     },

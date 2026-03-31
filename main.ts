@@ -23,14 +23,14 @@ process.setMaxListeners(0)
 let window: Electron.BrowserWindow | null
 
 let ffmpegPath = undefined as any
-if (process.platform === "linux") ffmpegPath = path.join(app.getAppPath(), "../ffmpeg/ffmpeg")
-if (process.platform === "darwin") ffmpegPath = path.join(app.getAppPath(), "../ffmpeg/ffmpeg")
-if (process.platform === "win32") ffmpegPath = path.join(app.getAppPath(), "../ffmpeg/ffmpeg.exe")
+if (process.platform === "darwin") ffmpegPath = path.join(app.getAppPath(), "../../ffmpeg/ffmpeg.app")
+if (process.platform === "win32") ffmpegPath = path.join(app.getAppPath(), "../../ffmpeg/ffmpeg.exe")
+if (process.platform === "linux") ffmpegPath = path.join(app.getAppPath(), "../../ffmpeg/ffmpeg")
 
 let modelPath = undefined as any
-if (process.platform === "linux") modelPath = path.join(app.getAppPath(), "../../models")
 if (process.platform === "darwin") modelPath = path.join(app.getAppPath(), "../../models")
 if (process.platform === "win32") modelPath = path.join(app.getAppPath(), "../../models")
+if (process.platform === "linux") modelPath = path.join(app.getAppPath(), "../../models")
 
 let waifu2xPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/waifu2x")
 let esrganPath = path.join(app.getAppPath(), "../app.asar.unpacked/node_modules/waifu2x/real-esrgan")
