@@ -45,11 +45,10 @@
       ]
     },
     "mas": {
-      "hardenedRuntime": false,
       "entitlements": "assets/mas/entitlements.mas.plist",
       "entitlementsInherit": "assets/mas/entitlements.mas.inherit.plist",
       "binaries": [
-        "Contents/Resources/ffmpeg/ffmpeg"
+        "ffmpeg/ffmpeg.app"
       ]
     },
     "dmg": {
