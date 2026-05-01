@@ -44,7 +44,10 @@ Our design is available here: https://www.figma.com/design/KXFlnNiiqjK18WgVIqxaV
 ### Purchase
 
 <a href="https://apps.apple.com/us/app/waifu2x-upscaler/id6760260194" target="_blank">
-  <img src="assets/images/mac-app-store.svg" style="height:60px"/>
+  <img src="assets/images/mac-app-store.svg" style="height:60px; margin-right:10px;"/>
+</a>
+<a href="https://apps.microsoft.com/store/detail/9P877B2Q79CC" target="_blank">
+  <img src="assets/images/microsoft-store.svg" style="height:60px"/>
 </a>
 <br/><br/>
 
